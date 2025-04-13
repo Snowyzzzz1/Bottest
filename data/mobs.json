@@ -7,7 +7,7 @@
     ]
   },
   "bear": {
-    "name": "Bear", "type": "normal", "zone": "Plains", "level": 2, "health": 50, "damage": 6, "xp": 40, "gold": 20,
+    "name": "Bear", "image": "./assets/mobs/Bear.png", "type": "normal", "zone": "Plains", "level": 2, "health": 50, "damage": 6, "xp": 40, "gold": 20,
     "drops": [
       { "item": "small_potion_atk", "chance": 60 },
       { "item": "small_potion_crt", "chance": 40 },
@@ -15,7 +15,7 @@
     ]
   },
   "Mama": {
-    "name": "Mama Bear", "type": "boss", "zone": "Desert", "level": 10, "health": 150, "damage": 20, "xp": 100, "gold": 50,
+    "name": "Mama Bear", "image": "./assets/mobs/Mama Bear.png", "type": "boss", "zone": "Desert", "level": 10, "health": 150, "damage": 20, "xp": 100, "gold": 50,
     "drops": [
       { "item": "ring_speed", "chance": 100 },
       { "item": "mega_potion_crt", "chance": 100 }
