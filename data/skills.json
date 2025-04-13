@@ -1,1 +1,17 @@
-
+{
+  "cyclone": {
+    "name": "Cyclone",
+    "level": 5,
+    "type": "attack",
+    "cooldown": 3,
+    "takesTurn": true
+  },
+  "lure_jab": {
+    "name": "Lure Jab",
+    "level": 10,
+    "type": "attack",
+    "cooldown": 3,
+    "takesTurn": true,
+    "appliesVuln": true
+  }
+}
