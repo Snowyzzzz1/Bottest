@@ -1,6 +1,6 @@
 {
   "grass": {
-    "name": "Grass Monster", "type": "normal", "zone": "Plains", "level": 1, "health": 30, "damage": 5, "xp": 20, "gold": 10,
+    "name": "Grass Monster", "image": "./assets/mobs/grass.png", "type": "normal", "zone": "Plains", "level": 1, "health": 30, "damage": 5, "xp": 20, "gold": 10,
     "drops": [
       { "item": "small_potion_atk", "chance": 30 },
       { "item": "small_potion_crt", "chance": 20 }
