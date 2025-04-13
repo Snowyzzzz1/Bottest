@@ -171,11 +171,17 @@ client.on('interactionCreate', async (interaction) => {
   }
 
   if (interaction.customId === 'quit_game') {
-    await interaction.update({
-      content: `<@${interaction.user.id}> Your game session has ended. See you next time!`,
-      embeds: [],
-      components: []
-    });
+    try {
+  await interaction.update({
+    content: `<@${interaction.user.id}> Your game session has ended. See you next time!`,
+    embeds: [],
+    components: []
+  });
+} catch (err) {
+  console.error('Failed to update interaction:', err);
+}
+
+
   }
 
   if (interaction.customId.startsWith('fight_mob_') || interaction.customId.startsWith('fight_boss_')) {
