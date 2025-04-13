@@ -10,6 +10,9 @@ const zones = JSON.parse(fs.readFileSync('./data/zones.json', 'utf8'));
 const mobs = JSON.parse(fs.readFileSync('./data/mobs.json', 'utf8'));
 const items = JSON.parse(fs.readFileSync('./data/items.json', 'utf8'));
 
+const { generateBattleImage } = require('./utils/imageGenerator');
+const { AttachmentBuilder } = require('discord.js');
+
 let player = {
   name: "Hero",
   level: 1,
@@ -184,12 +187,15 @@ client.on('interactionCreate', async (interaction) => {
     mob.currentHP = mob.health;
     player.currentHP = getTotalStat("hp");
 
+    const imgPath = await generateBattleImage(mob, zoneName);
+    const attachment = new AttachmentBuilder(imgPath);
     await interaction.update({
-      content: `⚔️ Battling ${mob.name}!`,
-      embeds: [generateBattleEmbed(mob)],
-      components: [battleActionRow()]
+     content: `⚔️ Battling ${mob.name}!`,
+     embeds: [generateBattleEmbed(mob)],
+     files: [attachment],
+     components: [battleActionRow()]
     });
-
+    
     client.battles = client.battles || {};
     client.battles[interaction.user.id] = { mob, zoneName, vuln: 0 };
   }
