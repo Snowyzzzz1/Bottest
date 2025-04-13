@@ -1,11 +1,14 @@
 {
   "cyclone": {
     "name": "Cyclone",
-    "level": 1,
+    "level": 5,
     "type": "attack",
     "cooldown": 3,
     "multi": 5,
-    "takesTurn": true
+    "takesTurn": true,
+    "description": "Spin rapidly to deal massive area damage. Deals 5x the regular swing damage.",
+    "icon": "cyclone",
+    "debuffTurns": 0
   },
   "lure_jab": {
     "name": "Lure Jab",
@@ -14,7 +17,9 @@
     "cooldown": 3,
     "multi": 0.5,
     "defenseDebuff": 50,
-    "debuffTurns": 3,
-    "takesTurn": true
+    "takesTurn": true,
+    "description": "Weaken your enemy’s defense for 3 turns by 50%.",
+    "icon": "lure_jab",
+    "debuffTurns": 3
   }
 }
