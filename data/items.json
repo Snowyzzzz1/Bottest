@@ -1,0 +1,12 @@
+{
+  "sword_paper": { "name": "Paper Sword", "type": "weapon", "level": 1, "atk": 6 },
+  "sword_iron": { "name": "Iron Sword", "type": "weapon", "level": 2, "atk": 18 },
+  "iron_armor": { "name": "Iron Armor", "type": "armor", "level": 1, "atk": 8, "hp": 30, "crt": 2 },
+  "ring_speed": { "name": "Ring of Speed", "type": "accessory", "level": 1, "atk": 1, "hp": 10, "crt": 4 },
+  "small_potion_atk": { "name": "Small ATK Potion", "type": "consumable", "level": 1, "stat": "atk", "amount": 1 },
+  "small_potion_hp": { "name": "Small HP Potion", "type": "consumable", "level": 1, "stat": "hp", "amount": 1 },
+  "small_potion_crt": { "name": "Small CRT Potion", "type": "consumable", "level": 1, "stat": "crt", "amount": 1 },
+  "mega_potion_atk": { "name": "Mega ATK Potion", "type": "consumable", "level": 5, "stat": "atk", "amount": 15 },
+  "mega_potion_hp": { "name": "Mega HP Potion", "type": "consumable", "level": 5, "stat": "hp", "amount": 15 },
+  "mega_potion_crt": { "name": "Mega CRT Potion", "type": "consumable", "level": 5, "stat": "crt", "amount": 15 }
+}
