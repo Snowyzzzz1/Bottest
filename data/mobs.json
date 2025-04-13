@@ -1,0 +1,31 @@
+{
+  "grass": {
+    "name": "Grass Monster", "type": "normal", "zone": "Plains", "level": 1, "health": 30, "damage": 5, "xp": 20, "gold": 10,
+    "drops": [
+      { "item": "small_potion_atk", "chance": 30 },
+      { "item": "small_potion_crt", "chance": 20 }
+    ]
+  },
+  "bear": {
+    "name": "Bear", "type": "normal", "zone": "Plains", "level": 2, "health": 50, "damage": 6, "xp": 40, "gold": 20,
+    "drops": [
+      { "item": "small_potion_atk", "chance": 60 },
+      { "item": "small_potion_crt", "chance": 40 },
+      { "item": "sword_iron", "chance": 60 }
+    ]
+  },
+  "Mama": {
+    "name": "Mama Bear", "type": "boss", "zone": "Desert", "level": 10, "health": 150, "damage": 20, "xp": 100, "gold": 50,
+    "drops": [
+      { "item": "ring_speed", "chance": 100 },
+      { "item": "mega_potion_crt", "chance": 100 }
+    ]
+  },
+  "orc": {
+    "name": "Orc", "type": "normal", "zone": "Desert", "level": 6, "health": 80, "damage": 12, "xp": 40, "gold": 20,
+    "drops": [
+      { "item": "small_potion_hp", "chance": 30 },
+      { "item": "small_potion_atk", "chance": 20 }
+    ]
+  }
+}
