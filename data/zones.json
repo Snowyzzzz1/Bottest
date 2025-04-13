@@ -1,0 +1,16 @@
+{
+  "Plains": {
+    "levelReq": 1,
+    "maxLevel": 15,
+    "mobs": ["grass", "bear"],
+    "boss": "Mama",
+    "image": "https://media.discordapp.net/attachments/1361072957039841330/1361075922022695123/Screenshot_20250413_172828_Roblox.png?ex=67fd703b&is=67fc1ebb&hm=c756dc287ee72f5057ab0e47e28d344046ebe02113a6df6dedd0f13882c2e0ec&=&format=webp&quality=lossless&width=1056&height=708"
+  },
+  "Desert": {
+    "levelReq": 7,
+    "maxLevel": 20,
+    "mobs": ["orc"],
+    "boss": "Mama",
+    "image": "https://media.discordapp.net/attachments/1361072957039841330/1361075913642606684/Screenshot_20250413_172858_Roblox.png?ex=67fd7039&is=67fc1eb9&hm=3ab95020ea456f0179360a7c08d0cc06bfe8f7e61739ef2e571c99cc29b3ce40&=&format=webp&quality=lossless&width=1175&height=684"
+  }
+}
