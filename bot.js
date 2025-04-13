@@ -194,12 +194,17 @@ client.on('interactionCreate', async (interaction) => {
     player.currentHP = getTotalStat("hp");
 
     const imgPath = await generateBattleImage(mob, zoneName);
-    const attachment = new AttachmentBuilder(imgPath);
+    const attachment = new AttachmentBuilder(imgPath).setName('battle.png');
+    const embed = generateBattleEmbed(mob).setImage('attachment://battle.png');
     await interaction.update({
-     content: `⚔️ Battling ${mob.name}!`,
-     embeds: [generateBattleEmbed(mob)],
-     files: [attachment],
-     components: [battleActionRow()]
+      content: `⚔️ Battling ${mob.name}!`,
+      embeds: [embed],
+      files: [attachment],
+      components: [battleActionRow()]
+    });
+
+    fs.unlink(imgPath, (err) => {
+      if (err) console.error('Failed to delete temp image:', err);
     });
     
     client.battles = client.battles || {};
