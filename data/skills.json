@@ -1,7 +1,7 @@
 {
   "cyclone": {
     "name": "Cyclone",
-    "level": 5,
+    "level": 1,
     "type": "attack",
     "cooldown": 3,
     "multi": 5,
@@ -14,7 +14,7 @@
     "cooldown": 3,
     "multi": 0.5,
     "defenseDebuff": 50,
-    "takesTurn": true,
-    "appliesVuln": true
+    "debuffTurns": 3,
+    "takesTurn": true
   }
 }
