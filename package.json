@@ -1,0 +1,16 @@
+{
+  "name": "discord-rpg-bot",
+  "version": "1.0.0",
+  "description": "A Discord RPG Bot inspired by RPG Simulator.",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "keywords": ["discord", "bot", "rpg", "discord.js"],
+  "author": "YourName",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.4.5"
+  }
+}
