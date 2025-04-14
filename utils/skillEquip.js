@@ -41,13 +41,29 @@ async function handleSkillEquip(interaction, player) {
   const updateSkillList = async () => {
     const available = getAvailableSkills(type, player.level);
 
-    if (available.length === 0) {
-      return interaction.update({
-        content: `No ${type} skills available at your level.`,
-        embeds: [],
-        components: []
-      });
-    }
+    if (availableSkills.length === 0) {
+  const denialEmbed = new EmbedBuilder()
+    .setTitle('No Skills Available')
+    .setDescription(`You don't have any ${type} skills available at your level.`)
+    .setColor(0xff0000)
+    .setImage('attachment://denial.png');
+
+  const backButton = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId('back_menu')
+      .setLabel('🔙 Back to Menu')
+      .setStyle(ButtonStyle.Secondary)
+  );
+
+  const denialImage = new AttachmentBuilder('assets/icons/denial.png', { name: 'denial.png' });
+
+  return interaction.update({
+    embeds: [denialEmbed],
+    files: [denialImage],
+    components: [backButton]
+  });
+}
+
 
     const embed = new EmbedBuilder()
       .setTitle(`Skill List - ${type.toUpperCase()} Skills`)
