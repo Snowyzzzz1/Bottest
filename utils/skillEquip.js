@@ -1,5 +1,11 @@
-// utils/handleSkillEquip.js
-const { EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const {
+  EmbedBuilder,
+  ActionRowBuilder,
+  StringSelectMenuBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  AttachmentBuilder
+} = require('discord.js');
 const skills = require('../data/skills.json');
 const fs = require('fs');
 
@@ -17,7 +23,7 @@ function getSkillEmbed(skillId) {
   return new EmbedBuilder()
     .setTitle(skill.name)
     .setDescription(skill.description)
-    .setColor(0x2ecc71) // green border
+    .setColor(0x2ecc71)
     .setImage(`attachment://${skillId}.png`);
 }
 
@@ -38,38 +44,38 @@ function getSkillSlotRow(playerLevel) {
 async function handleSkillEquip(interaction, player) {
   let type = 'attack';
 
-  const updateSkillList = async () => {
+  const updateSkillList = async (targetInteraction) => {
     const available = getAvailableSkills(type, player.level);
 
     if (available.length === 0) {
-  const denialEmbed = new EmbedBuilder()
-    .setTitle('No Skills Available')
-    .setDescription(`You don't have any ${type} skills available at your level.`)
-    .setColor(0xff0000)
-    .setImage('attachment://denial.png');
+      const denialEmbed = new EmbedBuilder()
+        .setTitle('No Skills Available')
+        .setDescription(`You don't have any ${type} skills available at your level.`)
+        .setColor(0xff0000)
+        .setImage('attachment://denial.png');
 
-  const backButton = new ActionRowBuilder().addComponents(
-    new ButtonBuilder()
-      .setCustomId('back_menu')
-      .setLabel('🔙 Back to Menu')
-      .setStyle(ButtonStyle.Secondary)
-  );
+      const backButton = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setCustomId('back_menu')
+          .setLabel('🔙 Back to Menu')
+          .setStyle(ButtonStyle.Secondary)
+      );
 
-  const denialImage = new AttachmentBuilder('assets/icons/denial.png', { name: 'denial.png' });
+      const denialImage = new AttachmentBuilder('assets/icons/denial.png', { name: 'denial.png' });
 
-  return interaction.update({
-    embeds: [denialEmbed],
-    files: [denialImage],
-    components: [backButton]
-  });
-}
-
+      return targetInteraction.update({
+        content: `<@${targetInteraction.user.id}>`,
+        embeds: [denialEmbed],
+        files: [denialImage],
+        components: [backButton]
+      });
+    }
 
     const embed = new EmbedBuilder()
       .setTitle(`Skill List - ${type.toUpperCase()} Skills`)
       .setColor(type === 'attack' ? 0xe74c3c : 0x3498db)
-      .setThumbnail(`attachment://${type}.png`)
-      .setDescription('Select a skill to view its details.');
+      .setDescription('Select a skill to view its details.')
+      .setImage(`attachment://${type}.png`);
 
     const menu = new ActionRowBuilder().addComponents(
       new StringSelectMenuBuilder()
@@ -85,15 +91,14 @@ async function handleSkillEquip(interaction, player) {
         .setStyle(ButtonStyle.Secondary)
     );
 
-    await interaction.update({
-      content: '',
+    await targetInteraction.update({
+      content: `<@${targetInteraction.user.id}>`,
       embeds: [embed],
       files: [`assets/skillIcons/${type}.png`],
       components: [menu, switchType]
     });
   };
 
-  // Listener
   const collector = interaction.channel.createMessageComponentCollector({
     filter: i => i.user.id === interaction.user.id,
     time: 60000
@@ -102,7 +107,7 @@ async function handleSkillEquip(interaction, player) {
   collector.on('collect', async i => {
     if (i.customId === 'switch_skill_type') {
       type = type === 'attack' ? 'support' : 'attack';
-      await updateSkillList();
+      await updateSkillList(i);
     }
 
     if (i.customId === 'select_skill') {
@@ -111,12 +116,12 @@ async function handleSkillEquip(interaction, player) {
       const row = getSkillSlotRow(player.level);
 
       await i.update({
+        content: `<@${i.user.id}>`,
         embeds: [embed],
         files: [`assets/skillsIcons/${skillId}.png`],
         components: [row]
       });
 
-      // Wait for slot equip
       const slotCollector = i.channel.createMessageComponentCollector({
         filter: b => b.user.id === interaction.user.id && b.customId.startsWith('equip_slot_'),
         max: 1,
@@ -133,21 +138,20 @@ async function handleSkillEquip(interaction, player) {
           .setImage(`attachment://${skillId}.png`);
 
         await b.update({
-          content: '',
+          content: `<@${b.user.id}>`,
           embeds: [confirm],
           files: [`assets/skillsIcons/${skillId}.png`],
           components: []
         });
 
-        // Return to selector
-        setTimeout(() => {
-          updateSkillList();
+        setTimeout(async () => {
+          await updateSkillList(b);
         }, 1500);
       });
     }
   });
 
-  await updateSkillList();
+  await updateSkillList(interaction);
 }
 
 module.exports = {
