@@ -162,7 +162,8 @@ async function handleSkillEquip(interaction, player) {
           content: `<@${interaction.user.id}>`,
           embeds: [confirm],
           files: [`assets/skillIcons/${skillId}.png`],
-          components: [backRow]
+          components: [backRow],
+          files: []
         });
       });
     }
