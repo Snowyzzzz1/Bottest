@@ -1,4 +1,4 @@
-// utils/handleSkillEquip.js
+// utils/skillEquip.js
 const {
   EmbedBuilder,
   ActionRowBuilder,
@@ -41,10 +41,12 @@ function getSkillSlotRow(playerLevel) {
       .setDisabled(playerLevel < btn.req)
   );
 
-  const backButton = new ButtonBuilder()
-    .setCustomId('back_menu')
+  const backRow = new ActionRowBuilder().addComponents(
+  new ButtonBuilder()
+    .setCustomId('back_from_skill_menu') // Changed here
     .setLabel('🔙 Back to Menu')
-    .setStyle(ButtonStyle.Secondary);
+    .setStyle(ButtonStyle.Secondary)
+);
 
   return new ActionRowBuilder().addComponents([...buttons, backButton]);
 }
@@ -62,12 +64,13 @@ async function handleSkillEquip(interaction, player) {
         .setColor(0xff0000)
         .setImage('attachment://denial.png');
 
-      const backButton = new ActionRowBuilder().addComponents(
-        new ButtonBuilder()
-          .setCustomId('back_menu')
-          .setLabel('🔙 Back to Menu')
-          .setStyle(ButtonStyle.Secondary)
-      );
+      const backRow = new ActionRowBuilder().addComponents(
+  new ButtonBuilder()
+    .setCustomId('back_from_skill_menu') // Changed here
+    .setLabel('🔙 Back to Menu')
+    .setStyle(ButtonStyle.Secondary)
+);
+
 
       const denialImage = new AttachmentBuilder('assets/icons/denial.png', {
         name: 'denial.png'
@@ -99,11 +102,13 @@ async function handleSkillEquip(interaction, player) {
         .setCustomId('switch_skill_type')
         .setLabel(`Switch to ${type === 'attack' ? 'Support' : 'Attack'} Skills`)
         .setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder()
-        .setCustomId('back_menu')
-        .setLabel('🔙 Back to Menu')
-        .setStyle(ButtonStyle.Secondary)
-    );
+      
+  new ButtonBuilder()
+    .setCustomId('back_from_skill_menu') // Changed here
+    .setLabel('🔙 Back to Menu')
+    .setStyle(ButtonStyle.Secondary)
+);
+
 
     await interaction.update({
       content: `<@${interaction.user.id}>`,
@@ -173,11 +178,12 @@ async function handleSkillEquip(interaction, player) {
           .setImage(`attachment://${skillId}.png`);
 
         const backRow = new ActionRowBuilder().addComponents(
-          new ButtonBuilder()
-            .setCustomId('back_menu')
-            .setLabel('🔙 Back to Menu')
-            .setStyle(ButtonStyle.Secondary)
-        );
+  new ButtonBuilder()
+    .setCustomId('back_from_skill_menu') // Changed here
+    .setLabel('🔙 Back to Menu')
+    .setStyle(ButtonStyle.Secondary)
+);
+
 
         await b.update({
           content: `<@${interaction.user.id}>`,
