@@ -82,7 +82,7 @@ client.on('messageCreate', async (message) => {
       .setFooter({ text: 'Prepare for battle!' });
 
     const buttons = new ActionRowBuilder().addComponents(
-      new ButtonBuilder().setCustomId('start_zones').setLabel('⚔️ Start Adventure').setStyle(ButtonStyle.Primary)
+      new ButtonBuilder().setCustomId('start_zones').setLabel('⚔️ Start Adventure').setStyle(ButtonStyle.Primary),
       new ButtonBuilder().setCustomId('equip_skills').setLabel('✨ Equip Skills').setStyle(ButtonStyle.Secondary),
       new ButtonBuilder().setCustomId('quit_game').setLabel('❌ Quit Game').setStyle(ButtonStyle.Danger)
     );
@@ -125,32 +125,49 @@ client.on('interactionCreate', async (interaction) => {
     });
   }
 
-  if (interaction.customId === 'select_zone') {
-    const zoneName = interaction.values[0];
-    const zone = zones[zoneName];
+if (interaction.customId === 'select_zone') {
+  const zoneName = interaction.values[0];
+  const zone = zones[zoneName];
 
-    const embed = new EmbedBuilder()
-      .setTitle(`🌍 Entering ${zoneName}`)
-      .setDescription(`**Level Range:** ${zone.levelReq} - ${zone.maxLevel}\n**Mobs:** ${zone.mobs.join(', ')}\n**Boss:** ${zone.boss}`)
-      .setImage(zone.image)
-      .setColor(0x3498db);
+  // Get display names for mobs and boss
+  const mobNames = zone.mobs.map(id => mobs[id]?.name || id);
+  const bossName = mobs[zone.boss]?.name || zone.boss;
 
-    const backButton = new ActionRowBuilder().addComponents(
-      new ButtonBuilder().setCustomId('start_zones').setLabel('🔙 Back to Zone List').setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder().setCustomId('quit_game').setLabel('❌ Quit Game').setStyle(ButtonStyle.Danger)
-    );
+  const embed = new EmbedBuilder()
+    .setTitle(`🌍 Entering ${zoneName}`)
+    .setDescription(`**Level Range:** ${zone.levelReq} - ${zone.maxLevel}\n**Mobs:** ${mobNames.join(', ')}\n**Boss:** ${bossName}`)
+    .setImage(zone.image)
+    .setColor(0x3498db);
 
-    const fightButtons = new ActionRowBuilder().addComponents(
-      new ButtonBuilder().setCustomId(`fight_mob_${zoneName}`).setLabel('🧟 Fight Zone Mob').setStyle(ButtonStyle.Primary),
-      new ButtonBuilder().setCustomId(`fight_boss_${zoneName}`).setLabel('🐉 Fight Zone Boss').setStyle(ButtonStyle.Danger)
-    );
+  const backButton = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId('start_zones')
+      .setLabel('🔙 Back to Zone List')
+      .setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder()
+      .setCustomId('quit_game')
+      .setLabel('❌ Quit Game')
+      .setStyle(ButtonStyle.Danger)
+  );
 
-    await interaction.update({
-      content: `<@${interaction.user.id}>`,
-      embeds: [embed],
-      components: [backButton, fightButtons]
-    });
-  }
+  const fightButtons = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId(`fight_mob_${zoneName}`)
+      .setLabel('🧟 Fight Zone Mob')
+      .setStyle(ButtonStyle.Primary),
+    new ButtonBuilder()
+      .setCustomId(`fight_boss_${zoneName}`)
+      .setLabel('🐉 Fight Zone Boss')
+      .setStyle(ButtonStyle.Danger)
+  );
+
+  await interaction.update({
+    content: `<@${interaction.user.id}>`,
+    embeds: [embed],
+    components: [backButton, fightButtons]
+  });
+}
+
   
 if (interaction.customId === 'equip_skills') {
   await handleSkillEquip(interaction, player);
@@ -166,6 +183,7 @@ if (interaction.customId === 'equip_skills') {
 
     const buttons = new ActionRowBuilder().addComponents(
       new ButtonBuilder().setCustomId('start_zones').setLabel('⚔️ Start Adventure').setStyle(ButtonStyle.Primary),
+      new ButtonBuilder().setCustomId('equip_skills').setLabel('✨ Equip Skills').setStyle(ButtonStyle.Secondary),
       new ButtonBuilder().setCustomId('quit_game').setLabel('❌ Quit Game').setStyle(ButtonStyle.Danger)
     );
 
