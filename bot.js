@@ -82,7 +82,7 @@ client.on('messageCreate', async (message) => {
       .setFooter({ text: 'Prepare for battle!' });
 
     const buttons = new ActionRowBuilder().addComponents(
-      new ButtonBuilder().setCustomId('equip_skills').setLabel('✨ Equip Skills').setStyle(ButtonStyle.Secondary)
+      new ButtonBuilder().setCustomId('equip_skills').setLabel('✨ Equip Skills').setStyle(ButtonStyle.Secondary),
       new ButtonBuilder().setCustomId('start_zones').setLabel('⚔️ Start Adventure').setStyle(ButtonStyle.Primary),
       new ButtonBuilder().setCustomId('quit_game').setLabel('❌ Quit Game').setStyle(ButtonStyle.Danger)
     );
