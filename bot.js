@@ -169,9 +169,16 @@ if (interaction.customId === 'select_zone') {
 }
 
   
-if (interaction.customId === 'equip_skills') {
-  await handleSkillEquip(interaction, player);
+if (
+  interaction.customId === 'equip_skills' ||
+  interaction.customId.startsWith('equip_') ||
+  interaction.customId === 'select_skill' ||
+  interaction.customId === 'switch_skill_type' ||
+  interaction.customId === 'back_from_skill_menu'
+) {
+  return handleSkillEquip(interaction, player);
 }
+
 
   if (interaction.customId === 'back_menu') {
     const embed = new EmbedBuilder()
