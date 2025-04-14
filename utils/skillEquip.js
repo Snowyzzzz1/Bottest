@@ -143,7 +143,7 @@ async function handleSkillEquip(interaction, player) {
       await i.update({
         content: `<@${interaction.user.id}>`,
         embeds: [embed],
-        files: [`assets/skillIcons/${skillId}.png`],
+        files: [],
         components: [row]
       });
 
