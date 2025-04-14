@@ -118,7 +118,7 @@ async function handleSkillEquip(interaction, player) {
       await i.update({
         content: `<@${i.user.id}>`,
         embeds: [embed],
-        files: [`assets/skillsIcons/${skillId}.png`],
+        files: [`assets/skillIcons/${skillId}.png`],
         components: [row]
       });
 
@@ -140,7 +140,7 @@ async function handleSkillEquip(interaction, player) {
         await b.update({
           content: `<@${b.user.id}>`,
           embeds: [confirm],
-          files: [`assets/skillsIcons/${skillId}.png`],
+          files: [`assets/skillIcons/${skillId}.png`],
           components: []
         });
 
