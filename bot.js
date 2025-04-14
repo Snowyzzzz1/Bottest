@@ -16,7 +16,7 @@ const { handleSkillEquip } = require('./utils/skillEquip');
 
 let player = {
   name: "Hero",
-  level: 1,
+  level: 100,
   xp: 0,
   gold: 0,
   baseStats: { atk: 0, hp: 100, crt: 0 },
