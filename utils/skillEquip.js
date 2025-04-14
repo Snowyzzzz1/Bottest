@@ -1,3 +1,4 @@
+// utils/handleSkillEquip.js
 const {
   EmbedBuilder,
   ActionRowBuilder,
@@ -32,19 +33,26 @@ function getSkillSlotRow(playerLevel) {
     { id: 0, label: 'Slot 1', req: 1 },
     { id: 1, label: 'Slot 2', req: 20 },
     { id: 2, label: 'Slot 3', req: 120 }
-  ].map(btn => new ButtonBuilder()
-    .setCustomId(`equip_slot_${btn.id}`)
-    .setLabel(btn.label)
-    .setStyle(ButtonStyle.Primary)
-    .setDisabled(playerLevel < btn.req)
+  ].map(btn =>
+    new ButtonBuilder()
+      .setCustomId(`equip_slot_${btn.id}`)
+      .setLabel(btn.label)
+      .setStyle(ButtonStyle.Primary)
+      .setDisabled(playerLevel < btn.req)
   );
-  return new ActionRowBuilder().addComponents(buttons);
+
+  const backButton = new ButtonBuilder()
+    .setCustomId('back_menu')
+    .setLabel('🔙 Back to Menu')
+    .setStyle(ButtonStyle.Secondary);
+
+  return new ActionRowBuilder().addComponents([...buttons, backButton]);
 }
 
 async function handleSkillEquip(interaction, player) {
   let type = 'attack';
 
-  const updateSkillList = async (targetInteraction) => {
+  const updateSkillList = async () => {
     const available = getAvailableSkills(type, player.level);
 
     if (available.length === 0) {
@@ -61,10 +69,12 @@ async function handleSkillEquip(interaction, player) {
           .setStyle(ButtonStyle.Secondary)
       );
 
-      const denialImage = new AttachmentBuilder('assets/icons/denial.png', { name: 'denial.png' });
+      const denialImage = new AttachmentBuilder('assets/icons/denial.png', {
+        name: 'denial.png'
+      });
 
-      return targetInteraction.update({
-        content: `<@${targetInteraction.user.id}>`,
+      return interaction.update({
+        content: `<@${interaction.user.id}>`,
         embeds: [denialEmbed],
         files: [denialImage],
         components: [backButton]
@@ -88,11 +98,15 @@ async function handleSkillEquip(interaction, player) {
       new ButtonBuilder()
         .setCustomId('switch_skill_type')
         .setLabel(`Switch to ${type === 'attack' ? 'Support' : 'Attack'} Skills`)
+        .setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder()
+        .setCustomId('back_menu')
+        .setLabel('🔙 Back to Menu')
         .setStyle(ButtonStyle.Secondary)
     );
 
-    await targetInteraction.update({
-      content: `<@${targetInteraction.user.id}>`,
+    await interaction.update({
+      content: `<@${interaction.user.id}>`,
       embeds: [embed],
       files: [`assets/skillIcons/${type}.png`],
       components: [menu, switchType]
@@ -105,9 +119,18 @@ async function handleSkillEquip(interaction, player) {
   });
 
   collector.on('collect', async i => {
+    if (i.customId === 'back_menu') {
+      return i.update({
+        content: `<@${interaction.user.id}> Returning to main menu...`,
+        embeds: [],
+        components: [],
+        files: []
+      });
+    }
+
     if (i.customId === 'switch_skill_type') {
       type = type === 'attack' ? 'support' : 'attack';
-      await updateSkillList(i);
+      await updateSkillList();
     }
 
     if (i.customId === 'select_skill') {
@@ -116,7 +139,7 @@ async function handleSkillEquip(interaction, player) {
       const row = getSkillSlotRow(player.level);
 
       await i.update({
-        content: `<@${i.user.id}>`,
+        content: `<@${interaction.user.id}>`,
         embeds: [embed],
         files: [`assets/skillIcons/${skillId}.png`],
         components: [row]
@@ -137,21 +160,24 @@ async function handleSkillEquip(interaction, player) {
           .setColor(0x2ecc71)
           .setImage(`attachment://${skillId}.png`);
 
+        const backRow = new ActionRowBuilder().addComponents(
+          new ButtonBuilder()
+            .setCustomId('back_menu')
+            .setLabel('🔙 Back to Menu')
+            .setStyle(ButtonStyle.Secondary)
+        );
+
         await b.update({
-          content: `<@${b.user.id}>`,
+          content: `<@${interaction.user.id}>`,
           embeds: [confirm],
           files: [`assets/skillIcons/${skillId}.png`],
-          components: []
+          components: [backRow]
         });
-
-        setTimeout(async () => {
-          await updateSkillList(b);
-        }, 1500);
       });
     }
   });
 
-  await updateSkillList(interaction);
+  await updateSkillList();
 }
 
 module.exports = {
