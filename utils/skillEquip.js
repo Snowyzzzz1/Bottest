@@ -124,16 +124,7 @@ async function handleSkillEquip(interaction, player) {
       await updateSkillList();
     }
 
-    if (i.customId === 'back_menu') {
-  await i.update({
-    content: `<@${interaction.user.id}>`,
-    embeds: [],
-    components: [],
-    files: []
-  });
-  collector.stop(); // This stops the skillEquip collector
-  return;
-    }
+    
     
     if (i.customId === 'select_skill') {
       const skillId = i.values[0];
