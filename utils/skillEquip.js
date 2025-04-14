@@ -120,12 +120,24 @@ async function handleSkillEquip(interaction, player) {
 
   collector.on('collect', async i => {
     if (i.customId === 'back_menu') {
-      return i.update({
-        content: `<@${interaction.user.id}> Returning to main menu...`,
-        embeds: [],
-        components: [],
-        files: []
-      });
+      const embed = new EmbedBuilder()
+      .setTitle('🛡️ Welcome to Mini RPG SIM!')
+      .setDescription(`**Welcome, <@${interaction.user.id}>!** This is an RPG experience inside Discord!\nThis game is inspired by **RPG Simulator** from Roblox.\nFight monsters, complete raids, collect pets, find runes, and explore more in updates.\n\nUse the button below to begin your journey!`)
+      .setColor(0x00AE86)
+      .setImage('https://media.discordapp.net/attachments/1361072957039841330/1361073013889433660/Screenshot_20250413_170948_Roblox.png?format=webp&quality=lossless&width=1063&height=684')
+      .setFooter({ text: 'Prepare for battle!' });
+
+    const buttons = new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setCustomId('start_zones').setLabel('⚔️ Start Adventure').setStyle(ButtonStyle.Primary),
+      new ButtonBuilder().setCustomId('equip_skills').setLabel('✨ Equip Skills').setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder().setCustomId('quit_game').setLabel('❌ Quit Game').setStyle(ButtonStyle.Danger)
+    );
+
+    await interaction.update({
+      content: `<@${interaction.user.id}>`,
+      embeds: [embed],
+      components: [buttons]
+    });
     }
 
     if (i.customId === 'switch_skill_type') {
