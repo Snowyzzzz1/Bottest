@@ -12,6 +12,7 @@ const items = JSON.parse(fs.readFileSync('./data/items.json', 'utf8'));
 
 const { generateBattleImage } = require('./utils/imageGenerator');
 const { AttachmentBuilder } = require('discord.js');
+const { handleSkillEquip } = require('../utils/skillEquip');
 
 let player = {
   name: "Hero",
@@ -149,6 +150,10 @@ client.on('interactionCreate', async (interaction) => {
       components: [backButton, fightButtons]
     });
   }
+  
+if (interaction.customId === 'equip_skills') {
+  await handleSkillEquip(interaction, player);
+}
 
   if (interaction.customId === 'back_menu') {
     const embed = new EmbedBuilder()
