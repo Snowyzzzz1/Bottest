@@ -12,7 +12,7 @@ const items = JSON.parse(fs.readFileSync('./data/items.json', 'utf8'));
 
 const { generateBattleImage } = require('./utils/imageGenerator');
 const { AttachmentBuilder } = require('discord.js');
-const { handleSkillEquip } = require('../utils/skillEquip');
+const { handleSkillEquip } = require('./utils/skillEquip');
 
 let player = {
   name: "Hero",
