@@ -88,7 +88,7 @@ async function handleSkillEquip(interaction, player) {
     await interaction.update({
       content: '',
       embeds: [embed],
-      files: [`assets/skillsIcons/${type}.png`],
+      files: [`assets/skillIcons/${type}.png`],
       components: [menu, switchType]
     });
   };
