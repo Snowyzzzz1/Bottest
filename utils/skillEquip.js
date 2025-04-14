@@ -1,4 +1,4 @@
-// utils/skillEquip.js
+// utils/handleSkillEquip.js
 const {
   EmbedBuilder,
   ActionRowBuilder,
@@ -41,12 +41,10 @@ function getSkillSlotRow(playerLevel) {
       .setDisabled(playerLevel < btn.req)
   );
 
-  const backRow = new ActionRowBuilder().addComponents(
-  new ButtonBuilder()
-    .setCustomId('back_from_skill_menu') // Changed here
+  const backButton = new ButtonBuilder()
+    .setCustomId('back_menu')
     .setLabel('🔙 Back to Menu')
-    .setStyle(ButtonStyle.Secondary)
-);
+    .setStyle(ButtonStyle.Secondary);
 
   return new ActionRowBuilder().addComponents([...buttons, backButton]);
 }
@@ -64,13 +62,12 @@ async function handleSkillEquip(interaction, player) {
         .setColor(0xff0000)
         .setImage('attachment://denial.png');
 
-      const backRow = new ActionRowBuilder().addComponents(
-  new ButtonBuilder()
-    .setCustomId('back_from_skill_menu') // Changed here
-    .setLabel('🔙 Back to Menu')
-    .setStyle(ButtonStyle.Secondary)
-);
-
+      const backButton = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setCustomId('back_menu')
+          .setLabel('🔙 Back to Menu')
+          .setStyle(ButtonStyle.Secondary)
+      );
 
       const denialImage = new AttachmentBuilder('assets/icons/denial.png', {
         name: 'denial.png'
@@ -102,13 +99,11 @@ async function handleSkillEquip(interaction, player) {
         .setCustomId('switch_skill_type')
         .setLabel(`Switch to ${type === 'attack' ? 'Support' : 'Attack'} Skills`)
         .setStyle(ButtonStyle.Secondary),
-      
-  new ButtonBuilder()
-    .setCustomId('back_from_skill_menu') // Changed here
-    .setLabel('🔙 Back to Menu')
-    .setStyle(ButtonStyle.Secondary)
-);
-
+      new ButtonBuilder()
+        .setCustomId('back_menu')
+        .setLabel('🔙 Back to Menu')
+        .setStyle(ButtonStyle.Secondary)
+    );
 
     await interaction.update({
       content: `<@${interaction.user.id}>`,
@@ -122,28 +117,6 @@ async function handleSkillEquip(interaction, player) {
     filter: i => i.user.id === interaction.user.id,
     time: 60000
   });
-
-  collector.on('collect', async i => {
-    if (i.customId === 'back_menu') {
-      const embed = new EmbedBuilder()
-      .setTitle('🛡️ Welcome to Mini RPG SIM!')
-      .setDescription(`**Welcome, <@${interaction.user.id}>!** This is an RPG experience inside Discord!\nThis game is inspired by **RPG Simulator** from Roblox.\nFight monsters, complete raids, collect pets, find runes, and explore more in updates.\n\nUse the button below to begin your journey!`)
-      .setColor(0x00AE86)
-      .setImage('https://media.discordapp.net/attachments/1361072957039841330/1361073013889433660/Screenshot_20250413_170948_Roblox.png?format=webp&quality=lossless&width=1063&height=684')
-      .setFooter({ text: 'Prepare for battle!' });
-
-    const buttons = new ActionRowBuilder().addComponents(
-      new ButtonBuilder().setCustomId('start_zones').setLabel('⚔️ Start Adventure').setStyle(ButtonStyle.Primary),
-      new ButtonBuilder().setCustomId('equip_skills').setLabel('✨ Equip Skills').setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder().setCustomId('quit_game').setLabel('❌ Quit Game').setStyle(ButtonStyle.Danger)
-    );
-
-    await interaction.update({
-      content: `<@${interaction.user.id}>`,
-      embeds: [embed],
-      components: [buttons]
-    });
-    }
 
     if (i.customId === 'switch_skill_type') {
       type = type === 'attack' ? 'support' : 'attack';
@@ -178,12 +151,11 @@ async function handleSkillEquip(interaction, player) {
           .setImage(`attachment://${skillId}.png`);
 
         const backRow = new ActionRowBuilder().addComponents(
-  new ButtonBuilder()
-    .setCustomId('back_from_skill_menu') // Changed here
-    .setLabel('🔙 Back to Menu')
-    .setStyle(ButtonStyle.Secondary)
-);
-
+          new ButtonBuilder()
+            .setCustomId('back_menu')
+            .setLabel('🔙 Back to Menu')
+            .setStyle(ButtonStyle.Secondary)
+        );
 
         await b.update({
           content: `<@${interaction.user.id}>`,
