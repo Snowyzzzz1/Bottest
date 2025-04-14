@@ -39,59 +39,29 @@ async function handleSkillEquip(interaction, player) {
   let type = 'attack';
 
   const updateSkillList = async () => {
-  const available = getAvailableSkills(type, player.level);
+    const available = getAvailableSkills(type, player.level);
 
-  if (available.length === 0) {
-    const denialEmbed = new EmbedBuilder()
-      .setTitle('No Skills Available')
-      .setDescription(`You don't have any ${type} skills available at your level.`)
-      .setColor(0xff0000)
-      .setImage('attachment://denial.png');
+    if (available.length === 0) {
+  const denialEmbed = new EmbedBuilder()
+    .setTitle('No Skills Available')
+    .setDescription(`You don't have any ${type} skills available at your level.`)
+    .setColor(0xff0000)
+    .setImage('attachment://denial.png');
 
-    const backButton = new ActionRowBuilder().addComponents(
-      new ButtonBuilder()
-        .setCustomId('back_menu')
-        .setLabel('🔙 Back to Menu')
-        .setStyle(ButtonStyle.Secondary)
-    );
-
-    const denialImage = new AttachmentBuilder('assets/icons/denial.png', { name: 'denial.png' });
-
-    return interaction.update({
-      embeds: [denialEmbed],
-      files: [denialImage],
-      components: [backButton]
-    });
-  }
-
-  const embed = new EmbedBuilder()
-    .setTitle(`Skill List - ${type.toUpperCase()} Skills`)
-    .setColor(type === 'attack' ? 0xe74c3c : 0x3498db)
-    .setThumbnail(`attachment://${type}.png`)
-    .setDescription('Select a skill to view its details.');
-
-  const menu = new ActionRowBuilder().addComponents(
-    new StringSelectMenuBuilder()
-      .setCustomId('select_skill')
-      .setPlaceholder('Choose a skill...')
-      .addOptions(available)
-  );
-
-  const switchType = new ActionRowBuilder().addComponents(
+  const backButton = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
-      .setCustomId('switch_skill_type')
-      .setLabel(`Switch to ${type === 'attack' ? 'Support' : 'Attack'} Skills`)
+      .setCustomId('back_menu')
+      .setLabel('🔙 Back to Menu')
       .setStyle(ButtonStyle.Secondary)
   );
 
-  await interaction.update({
-    content: '',
-    embeds: [embed],
-    files: [`assets/skillsIcons/${type}.png`],
-    components: [menu, switchType]
-  });
-};
+  const denialImage = new AttachmentBuilder('assets/icons/denial.png', { name: 'denial.png' });
 
+  return interaction.update({
+    embeds: [denialEmbed],
+    files: [denialImage],
+    components: [backButton]
+  });
 }
 
 
