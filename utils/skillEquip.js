@@ -1,125 +1,139 @@
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, ComponentType, AttachmentBuilder } = require('discord.js');
+// utils/handleSkillEquip.js
+const { EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const skills = require('../data/skills.json');
 const fs = require('fs');
-const skills = JSON.parse(fs.readFileSync('./data/skills.json', 'utf8'));
 
-function getSkillList(type, playerLevel) {
+function getAvailableSkills(type, level) {
   return Object.entries(skills)
-    .filter(([id, skill]) => skill.type === type && playerLevel >= skill.level)
-    .map(([id, skill]) => ({
-      label: `${skill.name} (Lvl ${skill.level})`,
+    .filter(([_, s]) => s.type === type && s.level <= level)
+    .map(([id, s]) => ({
+      label: `${s.name} (Lvl ${s.level})`,
       value: id
     }));
 }
 
-function createSkillEmbed(skillId) {
+function getSkillEmbed(skillId) {
   const skill = skills[skillId];
-  const embed = new EmbedBuilder()
+  return new EmbedBuilder()
     .setTitle(skill.name)
     .setDescription(skill.description)
-    .setColor(skill.type === 'attack' ? 0xe74c3c : 0x3498db)
-    .setImage(`attachment://${skillId}.png`)
-    .setFooter({ text: `Cooldown: ${skill.cooldown} | Takes Turn: ${skill.takesTurn ? "Yes" : "No"}` });
+    .setColor(0x2ecc71) // green border
+    .setImage(`attachment://${skillId}.png`);
+}
 
-  return embed;
+function getSkillSlotRow(playerLevel) {
+  const buttons = [
+    { id: 0, label: 'Slot 1', req: 1 },
+    { id: 1, label: 'Slot 2', req: 20 },
+    { id: 2, label: 'Slot 3', req: 120 }
+  ].map(btn => new ButtonBuilder()
+    .setCustomId(`equip_slot_${btn.id}`)
+    .setLabel(btn.label)
+    .setStyle(ButtonStyle.Primary)
+    .setDisabled(playerLevel < btn.req)
+  );
+  return new ActionRowBuilder().addComponents(buttons);
 }
 
 async function handleSkillEquip(interaction, player) {
-  let currentType = 'attack';
+  let type = 'attack';
 
-  const sendSkillTypeMenu = async () => {
+  const updateSkillList = async () => {
+    const available = getAvailableSkills(type, player.level);
+
+    if (available.length === 0) {
+      return interaction.update({
+        content: `No ${type} skills available at your level.`,
+        embeds: [],
+        components: []
+      });
+    }
+
     const embed = new EmbedBuilder()
-      .setTitle('Choose Skill Type')
-      .setColor(currentType === 'attack' ? 0xe74c3c : 0x3498db)
-      .setImage(`attachment://${currentType}.png`)
-      .setDescription('Select the type of skill you want to equip.');
+      .setTitle(`Skill List - ${type.toUpperCase()} Skills`)
+      .setColor(type === 'attack' ? 0xe74c3c : 0x3498db)
+      .setThumbnail(`attachment://${type}.png`)
+      .setDescription('Select a skill to view its details.');
 
-    const typeRow = new ActionRowBuilder().addComponents(
-      new ButtonBuilder().setCustomId('type_attack').setLabel('Attack').setStyle(ButtonStyle.Danger),
-      new ButtonBuilder().setCustomId('type_support').setLabel('Support').setStyle(ButtonStyle.Primary)
-    );
-
-    const skillOptions = getSkillList(currentType, player.level);
-
-    const skillSelect = new ActionRowBuilder().addComponents(
+    const menu = new ActionRowBuilder().addComponents(
       new StringSelectMenuBuilder()
         .setCustomId('select_skill')
-        .setPlaceholder('Choose a skill')
-        .addOptions(skillOptions)
+        .setPlaceholder('Choose a skill...')
+        .addOptions(available)
+    );
+
+    const switchType = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setCustomId('switch_skill_type')
+        .setLabel(`Switch to ${type === 'attack' ? 'Support' : 'Attack'} Skills`)
+        .setStyle(ButtonStyle.Secondary)
     );
 
     await interaction.update({
       content: '',
       embeds: [embed],
-      files: [new AttachmentBuilder(`./assets/skillsIcons/${currentType}.png`)],
-      components: [skillSelect, typeRow]
+      files: [`assets/skillsIcons/${type}.png`],
+      components: [menu, switchType]
     });
   };
 
-  const collector = interaction.channel.createMessageComponentCollector({ componentType: ComponentType.Button, time: 60_000 });
+  // Listener
+  const collector = interaction.channel.createMessageComponentCollector({
+    filter: i => i.user.id === interaction.user.id,
+    time: 60000
+  });
 
-  collector.on('collect', async btn => {
-    if (btn.customId === 'type_attack') {
-      currentType = 'attack';
-      await sendSkillTypeMenu();
-    } else if (btn.customId === 'type_support') {
-      currentType = 'support';
-      await sendSkillTypeMenu();
+  collector.on('collect', async i => {
+    if (i.customId === 'switch_skill_type') {
+      type = type === 'attack' ? 'support' : 'attack';
+      await updateSkillList();
+    }
+
+    if (i.customId === 'select_skill') {
+      const skillId = i.values[0];
+      const embed = getSkillEmbed(skillId);
+      const row = getSkillSlotRow(player.level);
+
+      await i.update({
+        embeds: [embed],
+        files: [`assets/skillsIcons/${skillId}.png`],
+        components: [row]
+      });
+
+      // Wait for slot equip
+      const slotCollector = i.channel.createMessageComponentCollector({
+        filter: b => b.user.id === interaction.user.id && b.customId.startsWith('equip_slot_'),
+        max: 1,
+        time: 30000
+      });
+
+      slotCollector.on('collect', async b => {
+        const slot = parseInt(b.customId.split('_')[2]);
+        player.skills[slot] = skillId;
+
+        const confirm = new EmbedBuilder()
+          .setTitle(`Equipped ${skills[skillId].name} to Slot ${slot + 1}`)
+          .setColor(0x2ecc71)
+          .setImage(`attachment://${skillId}.png`);
+
+        await b.update({
+          content: '',
+          embeds: [confirm],
+          files: [`assets/skillsIcons/${skillId}.png`],
+          components: []
+        });
+
+        // Return to selector
+        setTimeout(() => {
+          updateSkillList();
+        }, 1500);
+      });
     }
   });
 
-  const skillCollector = interaction.channel.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 60_000 });
-
-  skillCollector.on('collect', async select => {
-    const skillId = select.values[0];
-    const skill = skills[skillId];
-    const embed = createSkillEmbed(skillId);
-
-    const equipRow = new ActionRowBuilder().addComponents(
-      new ButtonBuilder()
-        .setCustomId(`equip_slot_0_${skillId}`)
-        .setLabel('Slot 1')
-        .setStyle(ButtonStyle.Primary),
-      new ButtonBuilder()
-        .setCustomId(`equip_slot_1_${skillId}`)
-        .setLabel('Slot 2')
-        .setStyle(player.level >= 20 ? ButtonStyle.Primary : ButtonStyle.Secondary)
-        .setDisabled(player.level < 20),
-      new ButtonBuilder()
-        .setCustomId(`equip_slot_2_${skillId}`)
-        .setLabel('Slot 3')
-        .setStyle(player.level >= 120 ? ButtonStyle.Primary : ButtonStyle.Secondary)
-        .setDisabled(player.level < 120)
-    );
-
-    await select.update({
-      content: '',
-      embeds: [embed],
-      files: [new AttachmentBuilder(`./assets/skillsIcons/${skillId}.png`)],
-      components: [equipRow]
-    });
-  });
-
-  const equipCollector = interaction.channel.createMessageComponentCollector({ componentType: ComponentType.Button, time: 60_000 });
-
-  equipCollector.on('collect', async btn => {
-    const [_, __, slotIndex, skillId] = btn.customId.split('_');
-    const index = parseInt(slotIndex);
-
-    if ((index === 1 && player.level < 20) || (index === 2 && player.level < 120)) {
-      return btn.reply({ content: "You don't meet the level requirement for this slot.", ephemeral: true });
-    }
-
-    player.skills[index] = skillId;
-
-    await btn.update({
-      content: `✅ Equipped **${skills[skillId].name}** to Slot ${index + 1}!`,
-      embeds: [],
-      files: [],
-      components: []
-    });
-  });
-
-  await sendSkillTypeMenu();
+  await updateSkillList();
 }
 
-module.exports = { handleSkillEquip };
+module.exports = {
+  handleSkillEquip
+};
