@@ -197,7 +197,8 @@ if (
     await interaction.update({
       content: `<@${interaction.user.id}>`,
       embeds: [embed],
-      components: [buttons]
+      components: [buttons],
+      files: []
     });
   }
 
