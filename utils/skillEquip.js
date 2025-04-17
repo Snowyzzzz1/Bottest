@@ -118,6 +118,7 @@ async function handleSkillEquip(interaction, player) {
     time: 60000
   });
 
+  collector.on('collect', async i => {
     if (i.customId === 'switch_skill_type') {
       type = type === 'attack' ? 'support' : 'attack';
       await updateSkillList();
