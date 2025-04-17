@@ -356,8 +356,12 @@ if (
     const attachment = new AttachmentBuilder(imgPath).setName('battle.png');
     const embed = generateBattleEmbed(mob).setImage('attachment://battle.png');
     await interaction.update({ content: log, embeds: [embed], files: [attachment], components: [battleActionRow()] });
-    fs.unlink(imgPath, err => { if (err) console.error('Failed to delete temp image:', err); });
+        fs.unlink(imgPath, err => {
+      if (err) console.error('Failed to delete temp image:', err);
+    });
   }
+}
+
 });
 
 client.login(process.env.TOKEN);
