@@ -1,4 +1,3 @@
-// utils/handleSkillEquip.js
 const {
   EmbedBuilder,
   ActionRowBuilder,
@@ -41,12 +40,7 @@ function getSkillSlotRow(playerLevel) {
       .setDisabled(playerLevel < btn.req)
   );
 
-  const backButton = new ButtonBuilder()
-    .setCustomId('back_menu')
-    .setLabel('🔙 Back to Menu')
-    .setStyle(ButtonStyle.Secondary);
-
-  return new ActionRowBuilder().addComponents([...buttons, backButton]);
+  return new ActionRowBuilder().addComponents(buttons);
 }
 
 async function handleSkillEquip(interaction, player) {
@@ -119,6 +113,19 @@ async function handleSkillEquip(interaction, player) {
   });
 
   collector.on('collect', async i => {
+    if (i.customId === 'back_menu') {
+      return i.update({
+        content: `<@${interaction.user.id}> Returning to main menu...`,
+        embeds: [],
+        components: [],
+        files: []
+      });
+    }
+
+    if (i.customId === 'return_to_skill_menu') {
+      await updateSkillList();
+    }
+
     if (i.customId === 'switch_skill_type') {
       type = type === 'attack' ? 'support' : 'attack';
       await updateSkillList();
@@ -151,10 +158,14 @@ async function handleSkillEquip(interaction, player) {
           .setColor(0x2ecc71)
           .setImage(`attachment://${skillId}.png`);
 
-        const backRow = new ActionRowBuilder().addComponents(
+        const confirmButtons = new ActionRowBuilder().addComponents(
+          new ButtonBuilder()
+            .setCustomId('return_to_skill_menu')
+            .setLabel('↩️ Back to Skill Menu')
+            .setStyle(ButtonStyle.Primary),
           new ButtonBuilder()
             .setCustomId('back_menu')
-            .setLabel('🔙 Back to Menu')
+            .setLabel('🔙 Back to Main Menu')
             .setStyle(ButtonStyle.Secondary)
         );
 
@@ -162,7 +173,7 @@ async function handleSkillEquip(interaction, player) {
           content: `<@${interaction.user.id}>`,
           embeds: [confirm],
           files: [`assets/skillIcons/${skillId}.png`],
-          components: [backRow]
+          components: [confirmButtons]
         });
       });
     }
