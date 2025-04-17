@@ -23,7 +23,7 @@ let player = {
   currentHP: 100,
   inventory: { "sword_paper": 1, "small_potion_atk": 2 },
   equipment: { weapon: "sword_paper", armor: null, accessory: null },
-  skills: [null, null, null],
+  skills: ["cyclone", null, null],
   skillCooldowns: [0, 0, 0]
 };
 
