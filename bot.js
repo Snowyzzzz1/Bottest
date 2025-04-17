@@ -347,21 +347,18 @@ if (
     player.skillCooldowns = player.skillCooldowns.map(cd => cd > 0 ? cd - 1 : 0);
 
     if (player.currentHP <= 0) {
-      log += `\n💀 You were defeated by ${mob.name}.`;
-      delete client.battles[interaction.user.id];
-      return interaction.update({ content: log, embeds: [], components: [] });
-    }
+  log += `\n💀 You were defeated by ${mob.name}.`;
+  delete client.battles[interaction.user.id];
+  return interaction.update({ content: log, embeds: [], components: [] });
+}
 
-    const imgPath = await generateBattleImage(mob, zoneName);
-    const attachment = new AttachmentBuilder(imgPath).setName('battle.png');
-    const embed = generateBattleEmbed(mob).setImage('attachment://battle.png');
-    await interaction.update({ content: log, embeds: [embed], files: [attachment], components: [battleActionRow()] });
-    fs.unlink(imgPath, err => { if (err) console.error('Failed to delete temp image:', err); });
-    }
-  }
+const imgPath = await generateBattleImage(mob, zoneName);
+const attachment = new AttachmentBuilder(imgPath).setName('battle.png');
+const embed = generateBattleEmbed(mob).setImage('attachment://battle.png');
+await interaction.update({ content: log, embeds: [embed], files: [attachment], components: [battleActionRow()] });
 
-    }
-  }
+fs.unlink(imgPath, err => {
+  if (err) console.error('Failed to delete temp image:', err);
 });
 
 client.login(process.env.TOKEN);
