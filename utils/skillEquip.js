@@ -99,12 +99,17 @@ async function handleSkillEquip(interaction, player) {
         .setStyle(ButtonStyle.Secondary)
     );
 
-    await interaction.update({
-      content: `<@${interaction.user.id}>`,
-      embeds: [embed],
-      files: [`assets/skillIcons/${type}.png`],
-      components: [menu, switchType]
-    });
+    try {
+  await interaction.update({
+    content: `<@${interaction.user.id}>`,
+    embeds: [embed],
+    files: [`assets/skillIcons/${type}.png`],
+    components: [menu, switchType]
+  });
+} catch (err) {
+  console.error("Failed to update interaction (probably expired):", err);
+}
+
   };
 
   const collector = interaction.channel.createMessageComponentCollector({
