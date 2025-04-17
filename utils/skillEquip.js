@@ -118,23 +118,11 @@ async function handleSkillEquip(interaction, player) {
     time: 60000
   });
 
-  collector.on('collect', async i => {
     if (i.customId === 'switch_skill_type') {
       type = type === 'attack' ? 'support' : 'attack';
       await updateSkillList();
     }
 
-    if (i.customId === 'back_menu') {
-  await i.update({
-    content: `<@${interaction.user.id}>`,
-    embeds: [],
-    components: [],
-    files: []
-  });
-  collector.stop(); // This stops the skillEquip collector
-  return;
-    }
-    
     if (i.customId === 'select_skill') {
       const skillId = i.values[0];
       const embed = getSkillEmbed(skillId);
@@ -143,7 +131,7 @@ async function handleSkillEquip(interaction, player) {
       await i.update({
         content: `<@${interaction.user.id}>`,
         embeds: [embed],
-        files: [],
+        files: [`assets/skillIcons/${skillId}.png`],
         components: [row]
       });
 
@@ -173,8 +161,7 @@ async function handleSkillEquip(interaction, player) {
           content: `<@${interaction.user.id}>`,
           embeds: [confirm],
           files: [`assets/skillIcons/${skillId}.png`],
-          components: [backRow],
-          files: []
+          components: [backRow]
         });
       });
     }
