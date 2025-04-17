@@ -117,15 +117,7 @@ async function handleSkillEquip(interaction, player) {
     time: 60000
   });
 
-  collector.on('collect', async i => {
-    if (i.customId === 'back_menu') {
-      return i.update({
-        content: `<@${interaction.user.id}> Returning to main menu...`,
-        embeds: [],
-        components: [],
-        files: []
-      });
-    }
+  collector.on('collect', async i => {    
 
     if (i.customId === 'return_to_skill_menu') {
       await updateSkillList();
