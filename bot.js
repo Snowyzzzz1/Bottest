@@ -244,63 +244,121 @@ if (
   }
 
   if (interaction.customId.startsWith('battle_action_')) {
-    const action = interaction.customId.split('_')[2];
-    const battle = client.battles?.[interaction.user.id];
-    if (!battle) return interaction.reply({ content: "No battle in progress!", ephemeral: true });
+  const action = interaction.customId.split('_')[2];
+  const battle = client.battles?.[interaction.user.id];
+  if (!battle) return interaction.reply({ content: "No battle in progress!", ephemeral: true });
 
-    const { mob, zoneName } = battle;
+  const { mob, zoneName } = battle;
+  const skillsData = JSON.parse(fs.readFileSync('./data/skills.json'));
 
-    if (action === 'attack') {
-      let atk = getTotalStat("atk");
-      if (battle.vuln > 0) atk = Math.floor(atk * 1.5);
-      const crt = getTotalStat("crt");
-      const crit = Math.random() * 100 < crt * 0.5;
-      const dmg = crit ? atk * 3 : atk;
+  if (action === 'attack') {
+    let atk = getTotalStat("atk");
+    let vulnMulti = 1 + (battle.debuffs?.reduce((acc, d) => acc + d.amount, 0) || 0) / 100;
+    atk = Math.floor(atk * vulnMulti);
+    const crt = getTotalStat("crt");
+    const crit = Math.random() * 100 < crt * 0.5;
+    const dmg = crit ? atk * 3 : atk;
 
-      mob.currentHP -= dmg;
+    mob.currentHP -= dmg;
+    player.currentHP -= mob.damage;
+
+    if (battle.debuffs) battle.debuffs = battle.debuffs.filter(d => --d.turns > 0);
+    player.skillCooldowns = player.skillCooldowns.map(cd => cd > 0 ? cd - 1 : 0);
+
+    let log = `You ${crit ? "**critically**" : ""} hit ${mob.name} for **${dmg}**!\n`;
+    log += `${mob.name} hit you for **${mob.damage}**!`;
+
+    if (mob.currentHP <= 0) {
+      log += `\n🎉 You defeated ${mob.name}!`;
+      delete client.battles[interaction.user.id];
+      return interaction.update({ content: log, embeds: [], components: [] });
+    }
+
+    if (player.currentHP <= 0) {
+      log += `\n💀 You were defeated by ${mob.name}.`;
+      delete client.battles[interaction.user.id];
+      return interaction.update({ content: log, embeds: [], components: [] });
+    }
+
+    const imgPath = await generateBattleImage(mob, zoneName);
+    const attachment = new AttachmentBuilder(imgPath).setName('battle.png');
+    const embed = generateBattleEmbed(mob).setImage('attachment://battle.png');
+    await interaction.update({ content: log, embeds: [embed], files: [attachment], components: [battleActionRow()] });
+    fs.unlink(imgPath, err => { if (err) console.error('Failed to delete temp image:', err); });
+  }
+
+  if (action === 'skill') {
+    const skillRows = player.skills.map((id, i) => {
+      const skill = id ? skillsData[id] : null;
+      const cooldown = player.skillCooldowns[i];
+      return `${skill ? `${skill.name} (CD: ${cooldown || 'Ready'})` : 'Empty Slot'}`;
+    });
+
+    const embed = new EmbedBuilder()
+      .setTitle('✨ Choose a Skill')
+      .setDescription(skillRows.map((row, i) => `**Slot ${i + 1}:** ${row}`).join('\n'))
+      .setColor(0x9b59b6);
+
+    const row = new ActionRowBuilder().addComponents(
+      player.skills.map((id, i) => {
+        const skill = id ? skillsData[id] : null;
+        return new ButtonBuilder()
+          .setCustomId(`use_skill_${i}`)
+          .setLabel(`Slot ${i + 1}`)
+          .setStyle(ButtonStyle.Primary)
+          .setDisabled(!skill || player.skillCooldowns[i] > 0);
+      })
+    );
+
+    return interaction.update({ content: `<@${interaction.user.id}>`, embeds: [embed], components: [row] });
+  }
+
+  if (interaction.customId.startsWith('use_skill_')) {
+    const index = parseInt(interaction.customId.split('_')[2]);
+    const skillId = player.skills[index];
+    const skill = skillsData[skillId];
+    const atk = getTotalStat("atk");
+    const base = atk * (skill.multi || 1);
+    const vulnMulti = 1 + (battle.debuffs?.reduce((acc, d) => acc + d.amount, 0) || 0) / 100;
+    const finalDmg = Math.floor(base * vulnMulti);
+    mob.currentHP -= finalDmg;
+    player.skillCooldowns[index] = skill.cooldown;
+
+    if (skill.defenseDebuff) {
+      battle.debuffs = battle.debuffs || [];
+      battle.debuffs.push({ amount: skill.defenseDebuff, turns: skill.debuffTurns });
+    }
+
+    let log = `You used **${skill.name}** and dealt **${finalDmg}** damage!`;
+    if (skill.defenseDebuff) log += `\n${mob.name}'s defense was lowered by ${skill.defenseDebuff}%!`;
+
+    if (mob.currentHP <= 0) {
+      log += `\n🎉 You defeated ${mob.name}!`;
+      delete client.battles[interaction.user.id];
+      return interaction.update({ content: log, embeds: [], components: [] });
+    }
+
+    if (skill.takesTurn) {
       player.currentHP -= mob.damage;
+      log += `\n${mob.name} hit you for **${mob.damage}**!`;
+    }
 
-      battle.vuln = Math.max(0, battle.vuln - 1);
-      player.skillCooldowns = player.skillCooldowns.map(cd => cd > 0 ? cd - 1 : 0);
+    if (battle.debuffs) battle.debuffs = battle.debuffs.filter(d => --d.turns > 0);
+    player.skillCooldowns = player.skillCooldowns.map(cd => cd > 0 ? cd - 1 : 0);
 
-      let log = `You ${crit ? "**critically**" : ""} hit ${mob.name} for **${dmg}**!\n`;
-      log += `${mob.name} hit you for **${mob.damage}**!`;
+    if (player.currentHP <= 0) {
+      log += `\n💀 You were defeated by ${mob.name}.`;
+      delete client.battles[interaction.user.id];
+      return interaction.update({ content: log, embeds: [], components: [] });
+    }
 
-      if (mob.currentHP <= 0) {
-        log += `\n🎉 You defeated ${mob.name}!`;
-        delete client.battles[interaction.user.id];
-        return interaction.update({
-          content: log,
-          embeds: [],
-          components: []
-        });
-      }
-
-      if (player.currentHP <= 0) {
-        log += `\n💀 You were defeated by ${mob.name}.`;
-        delete client.battles[interaction.user.id];
-        return interaction.update({
-          content: log,
-          embeds: [],
-          components: []
-        });
-      }
-
-      const imgPath = await generateBattleImage(mob, zoneName);
-const attachment = new AttachmentBuilder(imgPath).setName('battle.png');
-
-const embed = generateBattleEmbed(mob).setImage('attachment://battle.png');
-
-await interaction.update({
-  content: log,
-  embeds: [embed],
-  files: [attachment],
-  components: [battleActionRow()]
-});
-
-fs.unlink(imgPath, err => {
-  if (err) console.error('Failed to delete temp image:', err);
-});
+    const imgPath = await generateBattleImage(mob, zoneName);
+    const attachment = new AttachmentBuilder(imgPath).setName('battle.png');
+    const embed = generateBattleEmbed(mob).setImage('attachment://battle.png');
+    await interaction.update({ content: log, embeds: [embed], files: [attachment], components: [battleActionRow()] });
+    fs.unlink(imgPath, err => { if (err) console.error('Failed to delete temp image:', err); });
+    }
+  }
 
     }
   }
